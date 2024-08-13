@@ -15,28 +15,30 @@ Este es un espacio híbrido, abierto y gratuito para cualquier estudiante de pre
 :pushpin: **Análisis de redes para las ciencias sociales**.
 
 - Fecha: Lunes 26/08 de 18:00 – 20:30
-- Presencial en: 
+-   Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
+
 - Link de zoom: [https://zoom.us/j/5197324983](https://zoom.us/j/5197324983)
 - :books: Materiales: 
 
 :pushpin: **Primeros pasos con series de tiempo en ciencias sociales**. 
 
 - Fecha: Lunes 30/09 de 18:00 – 20:30
-- Presencial en: 
+-   Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
+
 - Link de zoom: [https://zoom.us/j/5197324983](https://zoom.us/j/5197324983)
 - :books: Materiales: 
 
 :pushpin: **Introducción al análisis espacial para fenómenos sociales**.
 
 - Fecha: Lunes 28/10 de 18:00 – 20:30
-- Presencial en: 
+-   Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
 - Link de zoom: [https://zoom.us/j/5197324983](https://zoom.us/j/5197324983)
 - :books: Materiales: 
 
 :pushpin: **Causalidad en ciencias sociales: aproximaciones experimentales**.
 
 - Fecha: Lunes 25/11 de 18:00 – 20:30
-- Presencial en: 
+-   Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
 - Link de zoom: [https://zoom.us/j/5197324983](https://zoom.us/j/5197324983)
 - :books: Materiales: 
 
