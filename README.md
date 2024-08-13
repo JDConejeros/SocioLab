@@ -1,4 +1,4 @@
-# SocioLab-UDP ![<img src="Images/logo_sociolab.png" width="10" fig-align="right"/>](Images/logo_sociolab.png)
+# SocioLab-UDP ![<img src="Images/logo_sociolab.png" width="200" align="right"/>](Images/logo_sociolab.png)
 
 Este laboratorio de datos sociales busca ampliar las posibilidades para los y las cientistas sociales enfocados en lo cuantitativo. Para esto tendremos una serie de workshops con herramientas de análisis estadísticos y de programación para ciencias sociales. 
 
