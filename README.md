@@ -6,7 +6,7 @@ Este laboratorio de datos sociales busca ampliar las posibilidades para los y la
 
 El objetivo de estos workshops es introducir a los sociólogos y sociólogas en otras técnicas estadísticas que les ayuden a formular nuevas preguntas e investigaciones en el ámbito de las ciencias sociales en esta era digital.
 
-:books: [Programa]() 
+:books: [Programa](Workshops/Programa_wshop2024.pdf) 
 
 Este es un espacio híbrido, abierto y gratuito para cualquier estudiante de pregrado o postgrado de la Universidad Diego Portales interesado en el análisis estadístico para datos sociales. Durante el segundo semestre del año 2024 tendremos los siguientes workshops: 
 
