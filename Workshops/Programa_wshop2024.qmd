@@ -1,0 +1,99 @@
+---
+title: "Workshop's SocioLab 2024"
+# subtitle: "" 
+date: last-modified
+date-format: 'DD [de] MMMM, YYYY'
+author: 
+    - name: José Daniel Conejeros 
+      email: jose.conejeros1@mail.udp.cl
+      affiliation: "Docente Escuela de Sociología UDP"
+format: 
+  html: 
+    toc: true
+    toc-location: right
+  pdf: default
+editor: visual
+lang: es
+---
+
+<!-- <img src="/Images/logo_sociolab.png" style='width: 200px; position:absolute; top:0; center:0; padding:-25px;'/> <br> -->
+
+El laboratorio de datos sociales, **SocioLab**, busca ampliar las posibilidades para los y las cientistas sociales enfocados en lo cuantitativo. Para esto tendremos una serie de workshops con herramientas de análisis estadísticos y de programación para ciencias sociales. 
+
+## Workshop 2024
+
+El objetivo de estos workshops es introducir a los sociólogos y sociólogas en otras técnicas estadísticas que les ayuden a formular nuevas preguntas e investigaciones en el ámbito de las ciencias sociales en esta era digital.
+
+Este es un espacio híbrido, abierto y gratuito para cualquier estudiante de pregrado o postgrado de la Universidad Diego Portales interesado en el análisis estadístico para datos sociales. Durante el segundo semestre del año 2024 tendremos los siguientes workshops: 
+
+### Sesión 1: Análisis de redes para las ciencias sociales
+
+Este workshop ofrece una introducción al análisis de redes aplicado a las ciencias sociales. Los participantes aprenderán a identificar y evaluar la estructura de redes sociales, a modelar la formación de enlaces mediante redes aleatorias, y a aplicar técnicas avanzadas como los Modelos de Grafos Aleatorios Exponenciales (ERGM).
+
+- Fecha: Lunes 26/08 de 18:00 – 20:30
+- Presencial en: 
+- Link de zoom: [https://zoom.us/j/5197324983](https://zoom.us/j/5197324983)
+
+Temas de la sesión: 
+
+- Estructura de datos en red
+- Análisis descriptivo de redes
+- Formación de redes alearorias
+- ERGM y detección de comunidades
+
+### Sesión 2: Primeros pasos con series de tiempo en ciencias sociales 
+
+Este taller se enfoca en el análisis de fenómenos sociales a lo largo del tiempo utilizando series de tiempo. Los participantes explorarán la visualización de datos temporales, la implementación de modelos ARMA, y el manejo de conceptos clave como la estacionariedad y estacionalidad, con aplicaciones prácticas en análisis de series de tiempo interrumpidas.
+
+- Fecha: Lunes 30/09 de 18:00 – 20:30
+- Presencial en: 
+- Link de zoom: [https://zoom.us/j/5197324983](https://zoom.us/j/5197324983)
+
+Temas de la sesión:
+
+- Visualización de series de tiempo
+- Implementación del modelo ARMA
+- Incorporación de la estacionariedad y estacionalidad
+- Aplicación: Series de tiempo interrumpidas
+
+### Sesión 3: Introducción al análisis espacial para fenómenos sociales
+
+En este workshop se abordarán las técnicas fundamentales para el análisis de datos espaciales en ciencias sociales. Se tratarán temas como la visualización de datos geoespaciales, la medición de correlaciones espaciales, y la modelización de datos de área, ofreciendo a los participantes las herramientas necesarias para un análisis geoespacial riguroso.
+
+- Fecha: Lunes 28/10 de 18:00 – 20:30
+- Presencial en: 
+- Link de zoom: [https://zoom.us/j/5197324983](https://zoom.us/j/5197324983)
+
+Temas de la sesión:
+
+- Trabajo con formatos de datos espaciales: datos de área, punto y geoestadísticos
+- Visualización de datos espaciales 
+- Medidas de correlación espacial
+- Modelos para datos de área
+
+### Sesión 4: Causalidad en ciencias sociales: aproximaciones experimentales
+
+Este taller explora las metodologías para la inferencia causal en ciencias sociales, tanto en contextos experimentales como no experimentales. Los asistentes analizarán los supuestos subyacentes a la estimación de efectos causales y se familiarizarán con técnicas para la identificación de causalidad en datos observacionales.
+
+- Fecha: Lunes 25/11 de 18:00 – 20:30
+- Presencial en: 
+- Link de zoom: [https://zoom.us/j/5197324983](https://zoom.us/j/5197324983)
+
+Temas de la sesión:
+
+- Problema fundamental de la inferencia causal
+- Efecto tratamiento promedio en experimentos
+- Supuestos asociados a la estimación de efectos causales
+- Técnicas para datos observacionales
+
+Los materiales estarán disponibles en [https://github.com/JDConejeros/SocioLab](https://github.com/JDConejeros/SocioLab)
+
+Dudas al correo:  [jose.conejeros1@mail.udp.cl](jose.conejeros1@mail.udp.cl)
+
+Cada workshop tendrá su propia literatura. 
+
+## Enlaces de interés
+
++ [Compendio de links útiles](https://www.lecy.info/r-for-public-policy)
+
++ [Conectarse a Github desde R](https://happygitwithr.com/rstudio-git-github.html#clone-the-new-github-repository-to-your-computer-via-rstudio)
