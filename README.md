@@ -18,7 +18,7 @@ Este es un espacio híbrido, abierto y gratuito para cualquier estudiante de pre
 -   Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
 
 - Link de zoom: [https://zoom.us/j/5197324983](https://zoom.us/j/5197324983)
-- :books: Materiales: 
+- :books: Materiales: [Click aquí](https://github.com/JDConejeros/SocioLab/tree/main/Workshops/WKS_01)
 
 :pushpin: **Primeros pasos con series de tiempo en ciencias sociales**. 
 
