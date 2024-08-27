@@ -24,7 +24,7 @@ El laboratorio de datos sociales, **SocioLab**, busca ampliar las posibilidades 
 
 El objetivo de estos workshops es introducir a los sociólogos y sociólogas en otras técnicas estadísticas que les ayuden a formular nuevas preguntas e investigaciones en el ámbito de las ciencias sociales en esta era digital.
 
-Este es un espacio híbrido, abierto y gratuito para cualquier estudiante de pregrado o postgrado de la Universidad Diego Portales interesado en el análisis estadístico para datos sociales. 
+Este es un espacio híbrido, abierto y gratuito para cualquier estudiante de pregrado o postgrado de la Universidad Diego Portales interesado en el análisis estadístico para datos sociales. Los workshops requieren un manejo de `R` y `RStudio` a nivel básico. 
 
 Links de inscripción: <https://forms.gle/L9uKkwNH1qyD4yNb6>
 

@@ -99,7 +99,7 @@ settings_packages(
 
 ## Sobre los datos en red
 
-Hoy vamos a utilizar unos datos de *Networked Pantheon*, una base de datos relacional que recopila biografías de personas globalmente famosas a lo largo de los últimos 5,500 años de historia. Esta base de datos complementa a *Pantheon 1.0*, la cual incluye información temporal, espacial, de género, y ocupacional de 11,341 figuras reconocidas a nivel mundial. Estas biografías están presentes en más de 25 versiones de Wikipedia en diferentes idiomas.La información sobre las relaciones entre estas figuras históricas es recopilada a partir de los hipervínculos presentes en los artículos de Wikipedia en inglés. Nosotros utilizamos solo un subconjunto de estos datos enfocados en el contexto latinoamericano. 
+Hoy vamos a utilizar los datos de *Networked Pantheon*, una base de datos relacional que recopila biografías de personas globalmente famosas a lo largo de los últimos 5,500 años de historia. Esta base de datos complementa a *Pantheon 1.0*, la cual incluye información temporal, espacial, de género, y ocupacional de 11,341 figuras reconocidas a nivel mundial. Estas biografías están presentes en más de 25 versiones de Wikipedia en diferentes idiomas.La información sobre las relaciones entre estas figuras históricas es recopilada a partir de los hipervínculos presentes en los artículos de Wikipedia en inglés. Nosotros utilizamos solo un subconjunto de estos datos enfocados en el contexto latinoamericano. 
 
 Vamos a descargar los datos directamente a nuestra sesión de `RStudio` de la siguiente manera:
 
@@ -159,7 +159,8 @@ net <- net_preparation(
 #| warning: false
 #| message: false
 #| echo: true
-head(net$nodos)
+nodos <- net$nodos
+head(nodos)
 ```
 
 
@@ -169,7 +170,8 @@ head(net$nodos)
 #| warning: false
 #| message: false
 #| echo: true
-head(net$enlaces)
+links <- net$enlaces
+head(links)
 ```
 
 Podemos ver el **objeto tipo red**: 
@@ -179,8 +181,8 @@ Podemos ver el **objeto tipo red**:
 #| message: false
 #| echo: true
 net <- net$red
+net 
 ```
-
 
 - **Matriz de adyacencia**: es otra manera de representar una red, es una matriz que tiene en los ejes x e y los nodos de la red y cada valor de la matriz es 1 si existe ese enlace y 0 si no.
 
@@ -232,8 +234,9 @@ plot <- ggnet2(net,
 atributos <- vertex_attr(net, index = plot$data$label)
 plot$layers[[2]]$mapping$Name        <- atributos$Name
 plot$layers[[2]]$mapping$countryName <- atributos$countryName
+plot$layers[[2]]$mapping$domain2 <- atributos$domain2
 
-plotly::ggplotly(plot, tooltip = c("Name", "countryName"))
+plotly::ggplotly(plot, tooltip = c("Name", "countryName", "domain2"))
 ```
 
 
@@ -283,7 +286,7 @@ componentes
 #| message: false
 #| echo: true
 g <- which.max(componentes$csize) # identificamos el gigante
-subred <- induced.subgraph(net, which(componentes$membership == g)) # nos quedamos con el componente gigante
+subred <- induced_subgraph(net, which(componentes$membership == g)) # nos quedamos con el componente gigante
 
 # Comparamos: 
 V(net)
@@ -322,7 +325,12 @@ centralidades <- cbind(centralidad_grado,
                        round(centralidad_intermediacion,3),
                        round(centralidad_eigen$vector,3)) 
 colnames(centralidades) <- c("grado", "cercania", "intermediacion", "eigen")
-head(centralidades)
+
+# Veamos los resultados
+centralidades |> as_tibble() |> arrange(desc(grado)) |> head()
+centralidades |> as_tibble() |> arrange(desc(cercania)) |> head()
+centralidades |> as_tibble() |> arrange(desc(intermediacion)) |> head()
+centralidades |> as_tibble() |> arrange(desc(eigen)) |> head()
 ```
 
 ```{r}
@@ -343,7 +351,7 @@ top5_eigenvector
 
 ## Formación de redes: modelos aleatorios
 
-Usualmente nos interesa conocer los fenómenos que explican la formación de la estructura específica de una red. Para esto se ocupan los "Modelos Nulos" que son redes formadas de manera aleatoria que preservan alguna propiedad de la red que se quiere estudiar. Luego, se comparan métricas descriptivas de la red sintética con las métricas de la red que estamos estudiando (clustering y distancia), para saber si nuestra red pudo formarse con el mismo mecanismo usado para generar la red aleatoria. Hay diversos algoritmos para la creación de un modelo nulo:
+Usualmente nos interesa conocer los fenómenos que explican la formación de la estructura específica de una red. Para esto se ocupan los "Modelos Nulos" que son redes formadas de manera aleatoria pero que preservan alguna propiedad de la red que se quiere estudiar. Luego, se comparan métricas descriptivas de la red sintética con las métricas de la red que estamos estudiando (clustering y distancia), para saber si nuestra red pudo formarse con el mismo mecanismo usado para generar la red aleatoria. Hay diversos algoritmos para la creación de un modelo nulo:
 
 
 ![](files/modelos_nulos_ejemplos.png){width=900 height=500 fig-align="center"}
@@ -356,7 +364,6 @@ Usualmente nos interesa conocer los fenómenos que explican la formación de la 
 # Obtenemos la base de la red para simular
 size <- length(V(net))
 dens <- edge_density(net)
-  
 ```
 
 
@@ -370,17 +377,18 @@ random_graph <- erdos.renyi.game(size, dens)
 avg_distance <- round(mean_distance(random_graph), 3)
 clustering <- round(transitivity(random_graph, type = "global"), 3)
 
- ggplot(
-    ggnetwork(random_graph), 
-    aes(x, y, xend = xend, yend = yend)
-  ) +
-    geom_edges(color = "gray") +
-    geom_nodes(aes(color = "black"), size = 3, alpha = 0.8) +
-    labs(title = "Modelo de red aleatoria",
-         caption=paste("Distancia promedio:", avg_distance, "\n",
-                       "Clustering:", clustering)) +
-    theme_blank() +
-    theme(legend.position = "none")
+g1 <- ggplot(
+  ggnetwork(random_graph), 
+  aes(x, y, xend = xend, yend = yend)
+) +
+  geom_edges(color = "gray") +
+  geom_nodes(size = 3, alpha = 0.8, color = "black") +
+  labs(title = "Modelo de red aleatoria",
+       caption=paste("Distancia promedio:", avg_distance, "\n",
+                     "Clustering:", clustering)) +
+  theme_blank() +
+  theme(legend.position = "none")
+g1
 ```
 
 
@@ -394,17 +402,18 @@ random_graph <- watts.strogatz.game(1, size, 3, 0.1)
 avg_distance <- round(mean_distance(random_graph), 3)
 clustering <- round(transitivity(random_graph, type = "global"), 3)
 
- ggplot(
-    ggnetwork(random_graph), 
-    aes(x, y, xend = xend, yend = yend)
-  ) +
-    geom_edges(color = "gray") +
-    geom_nodes(aes(color = "black"), size = 3, alpha = 0.8) +
-    labs(title = "Modelo de red aleatoria",
-         caption=paste("Distancia promedio:", avg_distance, "\n",
-                       "Clustering:", clustering)) +
-    theme_blank() +
-    theme(legend.position = "none")
+g2 <- ggplot(
+  ggnetwork(random_graph), 
+  aes(x, y, xend = xend, yend = yend)
+) +
+  geom_edges(color = "gray") +
+  geom_nodes(size = 3, alpha = 0.8, color = "black") +
+  labs(title = "Modelo de red aleatoria",
+       caption=paste("Distancia promedio:", avg_distance, "\n",
+                     "Clustering:", clustering)) +
+  theme_blank() +
+  theme(legend.position = "none")
+g2
 ```
 
 
@@ -418,18 +427,35 @@ random_graph <- barabasi.game(size, power = 1, m = 2, directed = FALSE)
 avg_distance <- round(mean_distance(random_graph), 3)
 clustering <- round(transitivity(random_graph, type = "global"), 3)
 
- ggplot(
-    ggnetwork(random_graph), 
-    aes(x, y, xend = xend, yend = yend)
-  ) +
-    geom_edges(color = "gray") +
-    geom_nodes(aes(color = "black"), size = 3, alpha = 0.8) +
-    labs(title = "Modelo de red aleatoria",
-         caption=paste("Distancia promedio:", avg_distance, "\n",
-                       "Clustering:", clustering)) +
-    theme_blank() +
-    theme(legend.position = "none")
+g3 <- ggplot(
+  ggnetwork(random_graph), 
+  aes(x, y, xend = xend, yend = yend)
+) +
+  geom_edges(color = "gray") +
+  geom_nodes(size = 3, alpha = 0.8, color = "black") +
+  labs(title = "Modelo de red aleatoria",
+       caption=paste("Distancia promedio:", avg_distance, "\n",
+                     "Clustering:", clustering)) +
+  theme_blank() +
+  theme(legend.position = "none")
+g3
 ```
+
+**Comparemos**
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+# Agregamos información al plot original
+g0 <- plot +  labs(title = "Red Original",
+             caption=paste("Distancia promedio:", round(mean_distance(net), 3), "\n",
+                           "Clustering:", round(transitivity(net, type="global"),3)))
+
+# Vemos todos los gráficos
+g0 | g1 | g2 | g3
+```
+
 
 
 ## Modelos exponenciales de grafos aleatorios (ERGMs)
@@ -460,6 +486,7 @@ La interpretación de los coeficientes en un ERGM es similar a la de los coefici
 #| warning: false
 #| message: false
 #| echo: true
+#| results: asis
 
 net_models <- net_preparation(
   path = './Datos/',# en local : 'Datos/',
@@ -512,6 +539,27 @@ jtools::plot_summs(mod1, mod2, mod3,
           legend.title = element_blank())
 ```
 
+Podemos evaluar los supuestos a partir de la calidad de la simulación MCMC que generó los parámetros del modelo. Los gráficos de trazas MCMC nos permiten ver la la diferencia entre las estadísticas de muestra y la red observada para cada paso de la simulación. Deben mostrar evidencia de “mezcla” (variación aleatoria en cada paso), centrada alrededor del cero. A su vez, en el gráficos de densidad MCMC los valores de las estadísticas de muestra deben tener una distribución en forma de campana, centrada en cero (es decir, sin diferencia con la red observada). Hay otros aspectos que el lector puede estudiar de forma personal dando [click aquí](https://cloud.r-project.org/web/packages/ergm/vignettes/ergm.pdf)
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+mcmc.diagnostics(mod3, which = c("plots"), compact = TRUE)
+```
+
+
+También podemos evaluar si el modelo logra representar adecuadamente estructuras observadas en el grafo. Para ello se utiliza una contrastación entre la red observada. Esto nos permite saber si el modelo tiene sentido a partir de la red que estamos modelando. Este análisis simula redes utilizando los parámetros ajustados del modelo y calcula una variedad de medidas estructurales a partir de estos gráficos. Luego, se comparan los recuentos de las estadísticas de gráficos de estas redes simuladas con los recuentos en su red observada. Esperamos que nuestro modelo no se distancia del valor observado. 
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+fit <- gof(mod3)
+plot(fit)
+```
+
+
 ## Extra: Detección de comunidades 
 
 **Girvan-Newman**: es una estrategia de detección de comunidades basada en la eliminación de los enlaces con mayor betweenness centrality (centralidad de intermediación). El algoritmo procede de manera iterativa, removiendo los nodos más "centrales" hasta que la red se descompone en comunidades más pequeñas.
@@ -539,7 +587,7 @@ ggplot(
       geom_nodes(size = 10, alpha = 0.25) +
       geom_nodes(aes(color = comm), size = 3, alpha = 0.8) +
       theme_blank() +
-      theme(legend.position = "none")
+      theme(legend.position = "right")
 ```
 
 
@@ -571,7 +619,7 @@ ggplot(
       geom_nodes(size = 10, alpha = 0.25) +
       geom_nodes(aes(color = comm), size = 3, alpha = 0.8) +
       theme_blank() +
-      theme(legend.position = "none")
+      theme(legend.position = "right")
 ```
 
 
@@ -601,7 +649,7 @@ ggplot(
       geom_nodes(size = 10, alpha = 0.25) +
       geom_nodes(aes(color = comm), size = 3, alpha = 0.8) +
       theme_blank() +
-      theme(legend.position = "none")
+      theme(legend.position = "right")
 ```
 
 
@@ -628,7 +676,7 @@ ggplot(
       geom_nodes(size = 10, alpha = 0.25) +
       geom_nodes(aes(color = comm), size = 3, alpha = 0.8) +
       theme_blank() +
-      theme(legend.position = "none")
+      theme(legend.position = "right")
 ```
 
 
@@ -660,7 +708,7 @@ ggplot(
       geom_nodes(size = 10, alpha = 0.25) +
       geom_nodes(aes(color = comm), size = 3, alpha = 0.8) +
       theme_blank() +
-      theme(legend.position = "none")
+      theme(legend.position = "right")
 ```
 
 
@@ -694,6 +742,20 @@ ggplot(
       geom_nodes(size = 10, alpha = 0.25) +
       geom_nodes(aes(color = comm), size = 3, alpha = 0.8) +
       theme_blank() +
-      theme(legend.position = "none")
+      theme(legend.position = "right")
 ```
+
+## Algunas referencias para continuar
+
+Luke, D. A. (2015). A user's guide to network analysis in R (Vol. 72, No. 10.1007, pp. 978-3). Cham: Springer. Click aquí
+
+Lusher, D., Koskinen, J., & Robins, G. (Eds.). (2013). Exponential random graph models for social networks: Theory, methods, and applications. Cambridge University Press.
+
+Hunter, D. R., Goodreau, S. M., Handcock, M. S., Butts, C. T., Krivitsky, P. N., Morris, M., ... & Schmid, C. (2024). ergm: Fit, Simulate and Diagnose Exponential-Family Models for Networks. The Statnet Project (Version 4.3.2) [Software manual]. Recuperado de <https://cloud.r-project.org/web/packages/ergm/vignettes/ergm.pdf>
+
+Kolaczyk, E. D., & Csárdi, G. (2014). Statistical analysis of network data with R (Vol. 65). New York: Springer. Click aquí
+
+Vega Yon, G. G., Slaughter, A., & de la Haye, K. (2021). Exponential random graph models for little networks. Social Networks, 64, 225-238.
+
+
 

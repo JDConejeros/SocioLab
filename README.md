@@ -9,36 +9,35 @@ El objetivo de estos workshops es introducir a los sociólogos y sociólogas en 
 :books: [Programa](Workshops/Programa_wshop2024.pdf) 
 :pushpin: Link de inscripción: [https://forms.gle/L9uKkwNH1qyD4yNb6](https://forms.gle/L9uKkwNH1qyD4yNb6)
 
+Este es un espacio híbrido, abierto y gratuito para cualquier estudiante de pregrado o postgrado de la Universidad Diego Portales interesado en el análisis estadístico para datos sociales. Los workshops requieren un manejo de `R` y `RStudio a nivel básico`. 
 
-Este es un espacio híbrido, abierto y gratuito para cualquier estudiante de pregrado o postgrado de la Universidad Diego Portales interesado en el análisis estadístico para datos sociales. Durante el segundo semestre del año 2024 tendremos los siguientes workshops: 
+Durante el segundo semestre del año 2024 tendremos los siguientes workshops: 
 
 :pushpin: **Análisis de redes para las ciencias sociales**.
 
 - Fecha: Lunes 26/08 de 18:00 – 20:30
--   Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
-
+- Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
 - Link de zoom: [https://zoom.us/j/5197324983](https://zoom.us/j/5197324983)
 - :books: Materiales: [Click aquí](https://github.com/JDConejeros/SocioLab/tree/main/Workshops/WKS_01)
 
 :pushpin: **Primeros pasos con series de tiempo en ciencias sociales**. 
 
 - Fecha: Lunes 30/09 de 18:00 – 20:30
--   Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
-
+- Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
 - Link de zoom: [https://zoom.us/j/5197324983](https://zoom.us/j/5197324983)
 - :books: Materiales: 
 
 :pushpin: **Introducción al análisis espacial para fenómenos sociales**.
 
 - Fecha: Lunes 28/10 de 18:00 – 20:30
--   Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
+- Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
 - Link de zoom: [https://zoom.us/j/5197324983](https://zoom.us/j/5197324983)
 - :books: Materiales: 
 
 :pushpin: **Causalidad en ciencias sociales: aproximaciones experimentales**.
 
 - Fecha: Lunes 25/11 de 18:00 – 20:30
--   Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
+- Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
 - Link de zoom: [https://zoom.us/j/5197324983](https://zoom.us/j/5197324983)
 - :books: Materiales: 
 
