@@ -24,22 +24,28 @@ Durante el segundo semestre del año 2024 tendremos los siguientes workshops:
 
 - Fecha: Lunes 30/09 de 18:00 – 20:30
 - Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
-- Link de zoom: [https://zoom.us/j/5197324983](https://zoom.us/j/5197324983)
-- :books: Materiales: 
+- Link de zoom: [https://zoom.us/j/94576755310?pwd=8sZ5IZwasOTX2TVqQqGTYXNVx4Hreu.1](https://zoom.us/j/94576755310?pwd=8sZ5IZwasOTX2TVqQqGTYXNVx4Hreu.1)
+- ID de reunión: 945 7675 5310
+- Código de acceso: 742414
+- :books: Materiales: [Click aquí](https://github.com/JDConejeros/SocioLab/tree/main/Workshops/WKS_02)
 
 :pushpin: **Introducción al análisis espacial para fenómenos sociales**.
 
 - Fecha: Lunes 28/10 de 18:00 – 20:30
 - Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
-- Link de zoom: [https://zoom.us/j/5197324983](https://zoom.us/j/5197324983)
-- :books: Materiales: 
+- Link de zoom: [https://zoom.us/j/93875602715?pwd=ksEVXVX5IWWlbZp0xtZ3AwivHjkdTE.1](https://zoom.us/j/93875602715?pwd=ksEVXVX5IWWlbZp0xtZ3AwivHjkdTE.1)
+- ID de reunión: 938 7560 2715
+- Código de acceso: 127692
+- :books: Materiales: [Click aquí](https://github.com/JDConejeros/SocioLab/tree/main/Workshops/WKS_03)
 
 :pushpin: **Causalidad en ciencias sociales: aproximaciones experimentales**.
 
 - Fecha: Lunes 25/11 de 18:00 – 20:30
 - Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
-- Link de zoom: [https://zoom.us/j/5197324983](https://zoom.us/j/5197324983)
-- :books: Materiales: 
+- Link de zoom: [https://zoom.us/j/96025165241?pwd=ugaFjC9Wz40a8Jhbx8AajfeaegVXNI.1](https://zoom.us/j/96025165241?pwd=ugaFjC9Wz40a8Jhbx8AajfeaegVXNI.1)
+- ID de reunión: 960 2516 5241
+- Código de acceso: 879031
+- :books: Materiales: [Click aquí](https://github.com/JDConejeros/SocioLab/tree/main/Workshops/WKS_04)
 
 Dudas al correo: :mailbox_with_no_mail: [jose.conejeros1@mail.udp.cl](jose.conejeros1@mail.udp.cl)
 

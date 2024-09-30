@@ -1,0 +1,761 @@
+---
+title: "Introducción al análisis de redes sociales"
+subtitle: "Laboratorio de datos sociales UDP"
+author: 
+  - José Conejeros <br> <jose.conejeros1@mail.udp.cl>
+  - Fernanda Hurtado <br> <fernanda.hurtado@mail.udp.cl>
+  - Patricio Alarcón <br> <patricio.alarcon@mail.udp.cl>
+date: last-modified
+date-format: 'dddd DD [de] MMMM, YYYY'
+last-modified:
+title-block-banner: true
+format: 
+  html:
+    css: "files/style.css"
+    page-layout: full
+    embed-resources: true
+    smooth-scroll: true
+    fontcolor: black
+    toc: true
+    toc-location: left
+    toc-title: Indice
+    code-copy: true
+    code-link: true
+    code-fold: show
+    code-tools: true
+    code-summary: "Click para ver el código"
+    anchor-sections: true
+    code-overflow: wrap
+    fig-cap-location: top
+lang: es
+abstract-title: "Facultad de Ciencias Sociales e Historia UDP"
+abstract: "[Click al repositorio](https://github.com/JDConejeros/SocioLab)"
+---
+
+::: logo-position
+<!-- No modificar -->
+
+<br> <strong></strong><br> 
+:::
+
+## Fenómenos en red 
+
+![](files/robust_accion.png){width=900 height=500 fig-align="center"}
+
+Robust Action and the Rise of the Medici, 1400-1434 de John F. Padgett y Christopher K. Ansell analiza cómo la familia Medici logró consolidar su poder en Florencia durante el Renacimiento. Utilizando un análisis de redes, los autores muestran que la clave del éxito de los Medici fue su capacidad para ocupar una posición central en múltiples redes (políticas, económicas y sociales), lo que les permitió manipular diferentes facciones y mantener su poder a través de una estrategia de "acción robusta." Puedes ver el artículo completo dando [click aquí](https://home.uchicago.edu/~jpadgett/papers/published/robust.pdf).
+
+
+![](files/social_contagion.png){width=900 height=500 fig-align="center"}
+
+![](files/social_contagion2.jpeg){width=900 height=900 fig-align="center"}
+
+Puedes ver el artículo completo dando [click aquí](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3830455/).
+
+
+![](files/surname.png){width=900 height=500 fig-align="center"}
+
+![](files/surname2.png){width=900 height=500 fig-align="center"}
+
+Puedes ver el artículo completo dando [click aquí](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3830455/).
+
+## ¿Qué es el análisis de redes sociales? 
+
+El análisis de redes es una estrategia metodológica que nos ayuda a estudiar las **estructuras subyacentes detrás de las relaciones que se dan entre los elementos de un sistema**, ya sean individuos, organizaciones, o cualquier unidad conectada con otra.
+
+A continuación realizaremos una serie de análisis para entender la estructura de una red, para esto vamos a trabajar en `R` ya que tiene una serie de `packages` implementados y testeados con funciones para el análisis de redes. Por favor copia y pega el código en tu sesión de `RStudio`:
+
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+#| results: 'hide'
+
+# Limpiamos el enviroment y desactivamos la notación científica 
+rm(list = ls())
+options(scipen = 999)
+
+# Cargamos las librerías que utilizaremos en el análisis
+settings_packages <- function(packages){
+  # Cargamos las tablas de datos
+  for (i in packages) {
+    if (i %in% rownames(installed.packages())) {
+      library(i, character.only=TRUE)
+    } else {
+      install.packages(i)
+      library(i, character.only = TRUE)
+    }
+  }
+}
+
+settings_packages(
+  packages=c("rio", "dplyr", "broom", "ggplot2", "jtools", 
+             "ggraph", "tidygraph", "GGally", "texreg", 
+             "igraph", "network", "sna", "ergm", # FUNDAMENTALES
+             "ggmcmc", "patchwork", "DT", "ggnetwork", "visNetwork")
+)
+```
+
+
+## Sobre los datos en red
+
+Hoy vamos a utilizar los datos de *Networked Pantheon*, una base de datos relacional que recopila biografías de personas globalmente famosas a lo largo de los últimos 5,500 años de historia. Esta base de datos complementa a *Pantheon 1.0*, la cual incluye información temporal, espacial, de género, y ocupacional de 11,341 figuras reconocidas a nivel mundial. Estas biografías están presentes en más de 25 versiones de Wikipedia en diferentes idiomas.La información sobre las relaciones entre estas figuras históricas es recopilada a partir de los hipervínculos presentes en los artículos de Wikipedia en inglés. Nosotros utilizamos solo un subconjunto de estos datos enfocados en el contexto latinoamericano. 
+
+Vamos a descargar los datos directamente a nuestra sesión de `RStudio` de la siguiente manera:
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+# Vamos a crear una función en R que nos ayudará a procesar la data
+net_preparation <- function(path, 
+                            edges, 
+                            nodes, 
+                            directed, 
+                            filtro_inicial_paises){
+  # 1. Importamos las tablas de datos
+  links <- rio::import(paste0(path, edges)) 
+  
+  nodos <- rio::import(paste0(path, nodes)) 
+  
+  # 2. Construímos la tabla en formato red 
+  net <- igraph::graph_from_data_frame(
+    d=links,
+    vertices = nodos,
+    directed = directed
+  ) |> 
+    igraph::simplify(
+      remove.multiple = TRUE,
+      remove.loops = TRUE
+    ) 
+  
+  net <- induced_subgraph(net, vids = V(net)[countryName %in% filtro_inicial_paises])
+  
+  # Guardamos todos los resultados en una lista
+  objetos_red <- list()
+  objetos_red$enlaces <- links
+  objetos_red$nodos <- nodos
+  objetos_red$red <- net
+  
+  objetos_red
+}
+
+# Ahora vamos aplicar nuestra función
+paises_lat <- c("Argentina", "Brazil", "Chile", "Costa rica", "Cuba", "Honduras",
+                "Mexico", "Panama", "Paraguay", "Peru", "Suriname", "Uruguay", "Venezuela")
+
+net <- net_preparation(
+  path = './Datos/',# en local : 'Datos/',
+  edges = 'edges.csv',
+  nodes = 'nodes.csv',
+  directed = FALSE,
+  filtro_inicial_paises = paises_lat
+)
+```
+
+- **Nodos**: cada componente individual de una red. El tamaño de la red será el número total de nodos que la componen.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+nodos <- net$nodos
+head(nodos)
+```
+
+
+- **Enlaces (links)**: Interacciones entre los nodos de la red. Se representan como pares de nodos. Pueden ser dirigidos (nodo emisor -\> nodo receptor) o no dirigidos (nodo 1 \<-\> nodo 2). Un nodo puede tener enlaces con uno o varios otros nodos, o con ninguno.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+links <- net$enlaces
+head(links)
+```
+
+Podemos ver el **objeto tipo red**: 
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+net <- net$red
+net 
+```
+
+- **Matriz de adyacencia**: es otra manera de representar una red, es una matriz que tiene en los ejes x e y los nodos de la red y cada valor de la matriz es 1 si existe ese enlace y 0 si no.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+as_adjacency_matrix(net)[c(1:20), c(1:20)]
+```
+**Grafiquemos la red**
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+# Podemos plotear con ggplot2
+plot <- ggplot(
+    ggnetwork(net), 
+    aes(x, y, xend = xend, yend = yend)) +
+    geom_edges(color = "gray") +
+    geom_nodes(aes(color = gender), size = 3, alpha = 0.8) +
+    #scale_colour_manual(values = palette("Alphabet")) +
+    labs(title = "Red de figuras públicas para América Latina") +
+    theme_blank() +
+    theme(legend.position = "top",
+          legend.title = element_blank())
+plot
+
+# Otra alternativa más dinámica
+visNetwork::visIgraph(net) %>%
+    visNetwork::visOptions(highlightNearest = TRUE, nodesIdSelection = TRUE)
+
+# Otra alternativa más dinámica
+plot <- ggnet2(net,
+    size = 1, 
+    # size.min = cota,
+    max_size = 3,  
+    edge.size = 0.1, 
+    edge.color = "grey",
+    node.color = "color_nodo",
+    node.alpha = 0.8,
+    label = FALSE
+    
+  ) +
+    ggtitle("Red de figuras públicas para América Latina") +
+    theme(legend.position = "none") 
+
+# Aquí viene lo interactivo
+atributos <- vertex_attr(net, index = plot$data$label)
+plot$layers[[2]]$mapping$Name        <- atributos$Name
+plot$layers[[2]]$mapping$countryName <- atributos$countryName
+plot$layers[[2]]$mapping$domain2 <- atributos$domain2
+
+plotly::ggplotly(plot, tooltip = c("Name", "countryName", "domain2"))
+```
+
+
+## Descripción de la estructura de una red 
+
+
+- **Grados de los nodos**: representa el número de enlaces que tiene con otros nodos. Usualmente se denomina con $k_i$ el grado del i-esimo nodo de la red. En una red dirigida vamos a hablar de *in-degree* para la cantidad de enlaces que llegan dirigidos hacia un nodo, y de *out-degree* para la cantidad de enlaces que salen desde un nodo hacia otros.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+sort(igraph::degree(net))
+```
+
+- **Densidad**: es la proporción de enlaces existentes, se calcula como el número total de enlaces (orden de la red) sobre el número total de enlaces posibles (si todos los nodos estuvieran conectados con todos, es decir, un grafo completo).
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+edge_density(net)
+```
+
+
+- **Clustering**: es la densidad del nodo, es decir, el número de enlaces del nodo, dividido por el número total de enlaces que podrían formar los vecinos del nodo entre ellos.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+round(transitivity(net, type="global"),3)
+```
+
+
+- **Componentes**: una red puede ser dividida en sub redes o componentes cuando hay grupos de nodos que no son alcanzables por otro grupo. En una componente todos los nodos están enlazados a algún otro nodo.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+componentes <- clusters(net)
+componentes
+```
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+g <- which.max(componentes$csize) # identificamos el gigante
+subred <- induced_subgraph(net, which(componentes$membership == g)) # nos quedamos con el componente gigante
+
+# Comparamos: 
+V(net)
+V(subred)
+```
+
+- **Distancias**:
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+gsize(net)
+gorder(net)
+net.distancia <- round(mean_distance(net),3) 
+net.distancia
+```
+
+- **Medidas de centralidad**
+
+```{r}
+# Calcular grado de centralidad (degree centrality) 
+centralidad_grado <- igraph::degree(net) 
+
+# Calcular centralidad de cercanía 
+centralidad_cercania <- igraph::closeness(net, normalized = T) 
+
+# Calcular la centralidad de intermediación
+centralidad_intermediacion <- igraph::betweenness(net, normalized = T)
+
+# Calcular la centralidad de vector propio
+centralidad_eigen <-igraph::eigen_centrality(net)
+
+centralidades <- cbind(centralidad_grado,
+                       round(centralidad_cercania,3),
+                       round(centralidad_intermediacion,3),
+                       round(centralidad_eigen$vector,3)) 
+colnames(centralidades) <- c("grado", "cercania", "intermediacion", "eigen")
+
+# Veamos los resultados
+centralidades |> as_tibble() |> arrange(desc(grado)) |> head()
+centralidades |> as_tibble() |> arrange(desc(cercania)) |> head()
+centralidades |> as_tibble() |> arrange(desc(intermediacion)) |> head()
+centralidades |> as_tibble() |> arrange(desc(eigen)) |> head()
+```
+
+```{r}
+# Nodos de mayor centralidad
+top5_degree <- head(sort(centralidad_grado, decreasing = TRUE), 5)
+top5_degree
+
+top5_betweenness <- head(sort(centralidad_intermediacion, decreasing = TRUE), 5)
+top5_betweenness
+
+top5_closeness <- head(sort(centralidad_cercania, decreasing = TRUE), 5)
+top5_closeness
+
+top5_eigenvector <- head(sort(centralidad_eigen$vector, decreasing = TRUE), 5)  # 
+top5_eigenvector
+```
+
+
+## Formación de redes: modelos aleatorios
+
+Usualmente nos interesa conocer los fenómenos que explican la formación de la estructura específica de una red. Para esto se ocupan los "Modelos Nulos" que son redes formadas de manera aleatoria pero que preservan alguna propiedad de la red que se quiere estudiar. Luego, se comparan métricas descriptivas de la red sintética con las métricas de la red que estamos estudiando (clustering y distancia), para saber si nuestra red pudo formarse con el mismo mecanismo usado para generar la red aleatoria. Hay diversos algoritmos para la creación de un modelo nulo:
+
+
+![](files/modelos_nulos_ejemplos.png){width=900 height=500 fig-align="center"}
+
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+# Obtenemos la base de la red para simular
+size <- length(V(net))
+dens <- edge_density(net)
+```
+
+
+- **Erdös Renyi**: la probabilidad es igual para cada enlace. En datos sociales los niveles de clusterización son generalmente mayores a los observados en las redes aleatorias de Erdos Renyi y existen nodos en la red con un grado muy alto.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+random_graph <- erdos.renyi.game(size, dens)
+avg_distance <- round(mean_distance(random_graph), 3)
+clustering <- round(transitivity(random_graph, type = "global"), 3)
+
+g1 <- ggplot(
+  ggnetwork(random_graph), 
+  aes(x, y, xend = xend, yend = yend)
+) +
+  geom_edges(color = "gray") +
+  geom_nodes(size = 3, alpha = 0.8, color = "black") +
+  labs(title = "Modelo de red aleatoria",
+       caption=paste("Distancia promedio:", avg_distance, "\n",
+                     "Clustering:", clustering)) +
+  theme_blank() +
+  theme(legend.position = "none")
+g1
+```
+
+
+- **Strogatz-Watts** (mundo pequeño): la distancia promedio de los nodos es pequeña y no cambia aunque se agreguen nuevos nodos a la red. 
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+random_graph <- watts.strogatz.game(1, size, 3, 0.1)
+avg_distance <- round(mean_distance(random_graph), 3)
+clustering <- round(transitivity(random_graph, type = "global"), 3)
+
+g2 <- ggplot(
+  ggnetwork(random_graph), 
+  aes(x, y, xend = xend, yend = yend)
+) +
+  geom_edges(color = "gray") +
+  geom_nodes(size = 3, alpha = 0.8, color = "black") +
+  labs(title = "Modelo de red aleatoria",
+       caption=paste("Distancia promedio:", avg_distance, "\n",
+                     "Clustering:", clustering)) +
+  theme_blank() +
+  theme(legend.position = "none")
+g2
+```
+
+
+- **Barabási** (modelo de libre escala): se basan en que la probabilidad de generar un enlace es mayor con nodos que tienen mayor grado, en estas redes aparecen naturalmente nodos con un grado muy alto.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+random_graph <- barabasi.game(size, power = 1, m = 2, directed = FALSE)
+avg_distance <- round(mean_distance(random_graph), 3)
+clustering <- round(transitivity(random_graph, type = "global"), 3)
+
+g3 <- ggplot(
+  ggnetwork(random_graph), 
+  aes(x, y, xend = xend, yend = yend)
+) +
+  geom_edges(color = "gray") +
+  geom_nodes(size = 3, alpha = 0.8, color = "black") +
+  labs(title = "Modelo de red aleatoria",
+       caption=paste("Distancia promedio:", avg_distance, "\n",
+                     "Clustering:", clustering)) +
+  theme_blank() +
+  theme(legend.position = "none")
+g3
+```
+
+**Comparemos**
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+# Agregamos información al plot original
+g0 <- plot +  labs(title = "Red Original",
+             caption=paste("Distancia promedio:", round(mean_distance(net), 3), "\n",
+                           "Clustering:", round(transitivity(net, type="global"),3)))
+
+# Vemos todos los gráficos
+g0 | g1 | g2 | g3
+```
+
+
+
+## Modelos exponenciales de grafos aleatorios (ERGMs)
+
+Esta metodología permite modelar redes para comprender y explicar las estructuras subyacentes de una red observada a partir de sus características estructurales y variables exógenas. Estos modelos permiten analizar la probabilidad de que un enlace se forme a partir de los atributos de la red y los nodos. Especificamos el modelo de la siguiente forma:
+$$P(Y=y)=\frac{exp(\theta'g(y))}{k(\theta)}$$
+
+Donde: 
+
+- $Y$ es la variable aleatoria que representa el estado de la red con $y$ como la red observada.
+
+- $g(y)$ es un vector de estadísticos descriptvos de la red (número de enlaces, tríadas, homofilia, etc.). Esto permite resumir las características estructurales de la red.
+
+- $\theta$ es un vector de coeficientes asociados con las configuraciones estructurales de la red
+
+- $k(\theta)$ es una constante de normalización que nos permite que la suma de las probabilidades sea igual a 1. 
+
+Cada coeficiente $\theta$ en un ERGM refleja el aporte que tiene la característica en la probabilidad general de la red observada. 
+
+- Parámetros **positivos** ($\theta>0$) indican que la configuración correspondiente (por ejemplo, más aristas o tríadas) es más frecuente en la red observada de lo que sería esperado por azar.
+
+- Parámetros **negativos** ($\theta<0$) sugieren que la configuración es menos común en la red observada que lo esperado por azar.
+
+La interpretación de los coeficientes en un ERGM es similar a la de los coeficientes en un modelo de regresión logística (*odds ratio*).
+
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+#| results: asis
+
+net_models <- net_preparation(
+  path = './Datos/',# en local : 'Datos/',
+  edges = 'edges.csv',
+  nodes = 'nodes.csv',
+  directed = TRUE,
+  filtro_inicial_paises = paises_lat
+)
+
+net_models <- intergraph::asNetwork(net_models$red)
+
+# Estimemos los modelos
+mod1 <- ergm(net_models ~ edges, verbose = FALSE)
+mod2 <- ergm(net_models ~ edges + mutual, verbose = FALSE)
+mod3 <- ergm(net_models ~ edges + mutual + 
+               nodecov("agespan") + 
+               nodematch("gender") + 
+               nodefactor("domain"), 
+             verbose = FALSE)
+modelos <- list(mod1, mod2, mod3)
+
+# Veamos los resultados
+texreg::htmlreg(modelos)
+```
+
+Podemos graficar nuestro modelo: 
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+
+max <- ceiling(max(c(abs(coef(mod1)), abs(coef(mod2)), abs(coef(mod3)))))
+
+jtools::plot_summs(mod1, mod2, mod3,
+                     model.names = c("Modelo 1", "Modelo 2", "Modelo 3")) +
+    scale_x_continuous(limits = c(-max-1, max+1)) +
+    scale_y_discrete(labels = function(x) gsub(".*\\.", "", x)) +
+    labs(x="Efectos", y=NULL,
+         caption=paste0(
+           "Modelo 1: ", "AIC=", round(AIC(mod1), 2), "; ", 
+           "BIC=", round(BIC(mod1)[1],2), "\n",
+           "Modelo 2: ", "AIC=", round(AIC(mod2), 2), "; ", 
+           "BIC=", round(BIC(mod2)[1],2), "\n",
+           "Modelo 2: ", "AIC=", round(AIC(mod3), 2), "; ", 
+           "BIC=", round(BIC(mod3)[1],2)
+         )) +
+    theme_light() +
+    theme(legend.position = "top",
+          legend.title = element_blank())
+```
+
+Podemos evaluar los supuestos a partir de la calidad de la simulación MCMC que generó los parámetros del modelo. Los gráficos de trazas MCMC nos permiten ver la la diferencia entre las estadísticas de muestra y la red observada para cada paso de la simulación. Deben mostrar evidencia de “mezcla” (variación aleatoria en cada paso), centrada alrededor del cero. A su vez, en el gráficos de densidad MCMC los valores de las estadísticas de muestra deben tener una distribución en forma de campana, centrada en cero (es decir, sin diferencia con la red observada). Hay otros aspectos que el lector puede estudiar de forma personal dando [click aquí](https://cloud.r-project.org/web/packages/ergm/vignettes/ergm.pdf)
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+mcmc.diagnostics(mod3, which = c("plots"), compact = TRUE)
+```
+
+
+También podemos evaluar si el modelo logra representar adecuadamente estructuras observadas en el grafo. Para ello se utiliza una contrastación entre la red observada. Esto nos permite saber si el modelo tiene sentido a partir de la red que estamos modelando. Este análisis simula redes utilizando los parámetros ajustados del modelo y calcula una variedad de medidas estructurales a partir de estos gráficos. Luego, se comparan los recuentos de las estadísticas de gráficos de estas redes simuladas con los recuentos en su red observada. Esperamos que nuestro modelo no se distancia del valor observado. 
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+fit <- gof(mod3)
+plot(fit)
+```
+
+
+## Extra: Detección de comunidades 
+
+**Girvan-Newman**: es una estrategia de detección de comunidades basada en la eliminación de los enlaces con mayor betweenness centrality (centralidad de intermediación). El algoritmo procede de manera iterativa, removiendo los nodos más "centrales" hasta que la red se descompone en comunidades más pequeñas.
+$$C_B(e)=\sum_{s \neq t}\frac{\sigma(s,t|e)}{\sigma(s,t)}$$
+
+Donde $\sigma(s,t)$ es el número total de caminos más cortos entre nodos $s$ y $t$, y $\sigma(s,t|e)$ es el número de esos caminos que pasan por el nodo $e$. Este algoritmo elimina de forma iterada los nodos con mayor $C_B(e)$ hasta que la red se divide en comunidades. 
+
+- Ventaja: efectivo para redes simples e independiente del tamaño.
+
+- Desventaja: en grafos grandes y ruidosos, tiende a sobrestimar el número de comunidades, ya que puede continuar eliminando aristas más allá del punto en que se debería detener.
+
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+red <- net 
+clustering <- cluster_edge_betweenness(net)
+V(red)$comm <- factor(membership(clustering))
+
+ggplot(
+  ggnetwork(red), 
+      aes(x, y, xend = xend, yend = yend, color = comm, label = Name)) +
+      geom_edges(color = "gray") +
+      geom_nodes(size = 10, alpha = 0.25) +
+      geom_nodes(aes(color = comm), size = 3, alpha = 0.8) +
+      theme_blank() +
+      theme(legend.position = "right")
+```
+
+
+**Label Propagation**: 
+
+El algoritmo de propagación de etiquetas se basa en la idea de que los nodos adoptan la etiqueta más común entre sus vecinos. Este proceso se repite de forma iterada hasta que todas las etiquetas convergen hacia la identificación de comunidades.
+
+Cada nodo $v$ tiene una etiqueta $L_v$ y en cada iteración se prueba que:
+$$L_v=moda(L_u: u \in vecinos(v))$$
+
+Donde la moda es el valor más frecuente. 
+
+- Ventaja: rápido y escalable a redes de distintos tamaños.
+
+- Desventaja: subestima el número de comunidades en redes muy ruidosas y puede no ser preciso en redes complejas.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+red <- net 
+clustering <- cluster_label_prop(net)
+V(red)$comm <- factor(membership(clustering))
+
+ggplot(
+  ggnetwork(red), 
+      aes(x, y, xend = xend, yend = yend, color = comm, label = Name)) +
+      geom_edges(color = "gray") +
+      geom_nodes(size = 10, alpha = 0.25) +
+      geom_nodes(aes(color = comm), size = 3, alpha = 0.8) +
+      theme_blank() +
+      theme(legend.position = "right")
+```
+
+
+**Louvain**
+
+El algoritmo de Louvain es un método de optimización modular para la detección de comunidades, en otras palabras, maximiza la modularidad en una estructura jerárquica. La modularidad es una medida que compara la densidad de aristas dentro de las comunidades con la densidad de aristas en una red aleatoria.
+$$Q=\frac{1}{2M}\sum_{ij} \biggl[ A_{ij} - \frac{k_ik_j}{2m} \biggr] \delta(c_i, c_j)$$
+
+Donde $A_{ij}$ es el peso del enlace entre $i$ y $j$. $k_i$ y $k_j$ son los grados de los nodos, $m$ es el número de enlaces y $\delta(c_i, c_j)$ es 1 si $i$ y $j$ están en la misma comunidad y 0 en caso contrario.
+
+- Ventaja: rápido y eficiente para diferentes tamaños de red.
+
+- Desventaja: subestima el número de comunidades en redes grandes y ruidosas.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+red <- net 
+clustering <- cluster_louvain(net)
+V(red)$comm <- factor(membership(clustering))
+
+ggplot(
+  ggnetwork(red), 
+      aes(x, y, xend = xend, yend = yend, color = comm, label = Name)) +
+      geom_edges(color = "gray") +
+      geom_nodes(size = 10, alpha = 0.25) +
+      geom_nodes(aes(color = comm), size = 3, alpha = 0.8) +
+      theme_blank() +
+      theme(legend.position = "right")
+```
+
+
+**Fast Greedy**
+
+El algoritmo Fast Greedy también maximiza la modularidad ($Q$), pero lo hace de manera aglomerativa, fusionando nodos o grupos de nodos para aumentar la modularidad hasta que no se pueda mejorar más. El algoritmo busca iterativamente los pares de comunidades cuya fusión maximice la modularidad $Q$ y continua fusionando hasta que no se puede mejorar más. 
+
+- Ventaja: rápido para redes de tamaño moderado.
+
+- Desventaja: subestima el número de comunidades y su rendimiento se deteriora en redes con más de mil nodos.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+red <- net 
+clustering <- cluster_fast_greedy(red)
+V(red)$comm <- factor(membership(clustering))
+
+ggplot(
+  ggnetwork(red), 
+      aes(x, y, xend = xend, yend = yend, color = comm, label = Name)) +
+      geom_edges(color = "gray") +
+      geom_nodes(size = 10, alpha = 0.25) +
+      geom_nodes(aes(color = comm), size = 3, alpha = 0.8) +
+      theme_blank() +
+      theme(legend.position = "right")
+```
+
+
+**Infomap**
+
+Infomap es un algoritmo que optimiza la compresión de un mapa de flujos de información en la red. Las comunidades se identifican minimizando la descripción de un paseo aleatorio en la red.
+
+Se basa en la idea de minimización de longitud media de un código que describe un paseo aleatorio.
+$$L(M) = q_{\curvearrowright} H(\mathcal{Q}) + \sum_{i=1}^{m} p_i^{\circlearrowright} H(\mathcal{P}_i)$$
+
+Donde $H$ es la entropía de las distribuciones de salida y entrada de los nodos.
+
+- Ventaja: identifica bien las comunidades en redes simples con menos de 1,000 nodos.
+
+- Desventaja: puede no escalar bien en redes más grandes y complejas.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+red <- net 
+clustering <- cluster_infomap(net)
+V(red)$comm <- factor(membership(clustering))
+
+ggplot(
+  ggnetwork(red), 
+      aes(x, y, xend = xend, yend = yend, color = comm, label = Name)) +
+      geom_edges(color = "gray") +
+      geom_nodes(size = 10, alpha = 0.25) +
+      geom_nodes(aes(color = comm), size = 3, alpha = 0.8) +
+      theme_blank() +
+      theme(legend.position = "right")
+```
+
+
+**Walktrap**
+
+El algoritmo Walktrap se basa en la idea de que un paseo aleatorio en la red tenderá a quedar atrapado dentro de la misma comunidad. Utiliza estos paseos para agrupar nodos en comunidades.
+
+La distancia entre los nodos se calcula a partir de los paseos aleatorios: 
+$$d(i,j)=\sqrt{(r_i-r_j)'(r_i-r_j)}$$
+
+Donde $r_i$ es el vector de probabilidades de visitar otros nodos después de un paseo de longitud $t$ desde $i$. 
+
+- Ventaja: efectivo para encontrar el número correcto de comunidades en redes simples, independientemente del tamaño.
+
+- Desventaja: Puede ser menos eficiente en redes complejas y ruidosas.
+
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+
+red <- net 
+clustering <- cluster_walktrap(net)
+V(red)$comm <- factor(membership(clustering))
+
+ggplot(
+  ggnetwork(red), 
+      aes(x, y, xend = xend, yend = yend, color = comm, label = Name)) +
+      geom_edges(color = "gray") +
+      geom_nodes(size = 10, alpha = 0.25) +
+      geom_nodes(aes(color = comm), size = 3, alpha = 0.8) +
+      theme_blank() +
+      theme(legend.position = "right")
+```
+
+## Algunas referencias para continuar
+
+Luke, D. A. (2015). A user's guide to network analysis in R (Vol. 72, No. 10.1007, pp. 978-3). Cham: Springer. Click aquí
+
+Lusher, D., Koskinen, J., & Robins, G. (Eds.). (2013). Exponential random graph models for social networks: Theory, methods, and applications. Cambridge University Press.
+
+Hunter, D. R., Goodreau, S. M., Handcock, M. S., Butts, C. T., Krivitsky, P. N., Morris, M., ... & Schmid, C. (2024). ergm: Fit, Simulate and Diagnose Exponential-Family Models for Networks. The Statnet Project (Version 4.3.2) [Software manual]. Recuperado de <https://cloud.r-project.org/web/packages/ergm/vignettes/ergm.pdf>
+
+Kolaczyk, E. D., & Csárdi, G. (2014). Statistical analysis of network data with R (Vol. 65). New York: Springer. Click aquí
+
+Vega Yon, G. G., Slaughter, A., & de la Haye, K. (2021). Exponential random graph models for little networks. Social Networks, 64, 225-238.
+
+
+

@@ -24,7 +24,7 @@ El laboratorio de datos sociales, **SocioLab**, busca ampliar las posibilidades 
 
 El objetivo de estos workshops es introducir a los sociólogos y sociólogas en otras técnicas estadísticas que les ayuden a formular nuevas preguntas e investigaciones en el ámbito de las ciencias sociales en esta era digital.
 
-Este es un espacio híbrido, abierto y gratuito para cualquier estudiante de pregrado o postgrado de la Universidad Diego Portales interesado en el análisis estadístico para datos sociales. Los workshops requieren un manejo de `R` y `RStudio` a nivel básico. 
+Este es un espacio híbrido, abierto y gratuito para cualquier estudiante de pregrado o postgrado de la Universidad Diego Portales interesado en el análisis estadístico para datos sociales. Los workshops requieren un manejo de `R` y `RStudio` a nivel básico.
 
 Links de inscripción: <https://forms.gle/L9uKkwNH1qyD4yNb6>
 
@@ -36,7 +36,7 @@ Este workshop ofrece una introducción al análisis de redes aplicado a las cien
 
 -   Fecha: Lunes 26/08 de 18:00 – 20:30
 -   Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
--   Link de zoom: <https://zoom.us/j/5197324983>
+-   Virtual: vía zoom.
 
 Temas de la sesión:
 
@@ -51,7 +51,7 @@ Este taller se enfoca en el análisis de fenómenos sociales a lo largo del tiem
 
 -   Fecha: Lunes 30/09 de 18:00 – 20:30
 -   Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
--   Link de zoom: <https://zoom.us/j/5197324983>
+-   Virtual: vía zoom.
 
 Temas de la sesión:
 
@@ -66,7 +66,7 @@ En este workshop se abordarán las técnicas fundamentales para el análisis de 
 
 -   Fecha: Lunes 28/10 de 18:00 – 20:30
 -   Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
--   Link de zoom: <https://zoom.us/j/5197324983>
+-   Virtual: vía zoom.
 
 Temas de la sesión:
 
@@ -81,7 +81,7 @@ Este taller explora las metodologías para la inferencia causal en ciencias soci
 
 -   Fecha: Lunes 25/11 de 18:00 – 20:30
 -   Presencial en: Ejercito 333, Facultad de Ciencias Sociales e Historia UDP. Laboratorio de computación en el 3º piso.
--   Link de zoom: <https://zoom.us/j/5197324983>
+-   Virtual: vía zoom.
 
 Temas de la sesión:
 

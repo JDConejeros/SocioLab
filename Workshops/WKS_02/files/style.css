@@ -1,0 +1,75 @@
+
+/* Paleta de colores */
+:root {
+  --inst-color: #1f618d; /* color rojo logo udp */
+  --banner-color: #f8f9f9; /* color rojo logo udp (OLD: #6B6B6B;)*/
+  --title-color: #17202A; /* color de título distinto al banner */
+}
+
+/*Configuración del banner y el título del banner*/
+.quarto-title-block .quarto-title-banner {
+  background-color: var(--banner-color);
+  padding-top: 150px;
+  color: black;
+}
+
+/*Logo a la derecha*/
+.logo-position {
+  position: absolute;
+  margin: 0 0 0 0;
+  top: 3%;
+  right: 4%;
+  text-align: right;
+  font-size: 16px;
+}
+
+/* Opción 2: logo a la izquierda
+Ojo: quizás es mejor incorporar el logo dentro el
+conteiner del banner y quedaría más ordenado. Esta
+solución es más simple */
+/*.logo-position {
+  position: absolute;
+  top: 4%;
+  left: 4%;
+  text-align: left;
+  font-size: 16px; 
+  color: black;
+}*/
+
+
+h1.title {
+    color: #1f618d; /* Cambia este valor por el color que prefieras */
+}
+
+/* Cambiamos hipervínculos al color institucional (rojo) */
+a {
+  color: var(--inst-color);
+}
+
+/*Título del toc en negrita*/
+#toc-title {
+  font-weight: bold;
+}
+
+/*Cambiar el color de lso títulos del toc al color institucional, al hacer click*/
+.sidebar nav[role="doc-toc"] ul > li > a.active {
+    color: var(--inst-color) !important;
+}
+
+/*Cambiar el color de lso títulos del toc al color institucional, al pasar el mouse*/
+.sidebar nav[role="doc-toc"] ul > li > a:hover {
+    color: var(--inst-color) !important;
+}
+
+/*Cambiar el color de lso subtítulos del toc al color institucional, al hacer click*/
+.sidebar nav[role="doc-toc"] ul > li > ul > li > a.active {
+    color: var(--inst-color) !important;
+}
+
+/*Cambiar el color de lso subtítulos del toc al color institucional, al pasar el mose*/
+.sidebar nav[role="doc-toc"] ul > li > ul > li > a:hover {
+    color: var(--inst-color) !important;
+}
+
+
+
