@@ -38,6 +38,8 @@ Durante el segundo semestre del año 2024 tendremos los siguientes workshops:
 - Código de acceso: 127692
 - :books: Materiales: [Click aquí](https://github.com/JDConejeros/SocioLab/tree/main/Workshops/WKS_03)
 
+![](Workshop3.mp4){width=900 height=500 fig-align="center"}
+
 :pushpin: **Causalidad en ciencias sociales: aproximaciones experimentales**.
 
 - Fecha: Lunes 25/11 de 18:00 – 20:30
