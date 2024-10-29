@@ -1,0 +1,804 @@
+---
+title: "Introducción al análisis espacial para fenómenos sociales"
+subtitle: "Laboratorio de datos sociales UDP"
+author: 
+  - José Conejeros <br> <jose.conejeros1@mail.udp.cl>
+  - Fernanda Hurtado <br> <fernanda.hurtado@mail.udp.cl>
+  - Patricio Alarcón <br> <patricio.alarcon@mail.udp.cl>
+date: last-modified
+date-format: 'dddd DD [de] MMMM, YYYY'
+last-modified:
+title-block-banner: true
+format: 
+  html:
+    css: "files/style.css"
+    page-layout: full
+    embed-resources: true
+    smooth-scroll: true
+    fontcolor: black
+    toc: true
+    toc-location: left
+    toc-title: Indice
+    code-copy: true
+    code-link: true
+    code-fold: show
+    code-tools: true
+    code-summary: "Click para ver el código"
+    anchor-sections: true
+    code-overflow: wrap
+    fig-cap-location: top
+lang: es
+abstract-title: "Facultad de Ciencias Sociales e Historia UDP"
+abstract: "[Click al repositorio](https://github.com/JDConejeros/SocioLab)"
+---
+
+::: logo-position
+<!-- No modificar -->
+
+<br> <strong></strong><br> 
+:::
+
+## Fenómenos espaciales
+
+El análisis espacial estudia la distribución y los patrones de fenómenos sociales insertos en un contexto geográfico. En este tipo de análisis se  busca entender cómo factores como la pobreza, la salud, la educación, la criminalidad, entre otras pueden varíar entre regiones. Utilizando herramientas como los Sistemas de Información Geográfica (SIG) y estadísticas espaciales, se busca identificar concentraciones, dependencias y posibles desigualdades territoriales. 
+
+Entender cómo los fenómenos varían en diferentes lugares y cómo interactúan en el espacio contribuye a una comprensión profunda de los fenómenos sociales en su contexto espacial, apoyando la planificación y la toma de decisiones en políticas públicas y desarrollo social.
+
+![](files/pleb.jpeg){width="600" height="700" fig-align="center"}
+
+Fuente: [https://www.elmostrador.cl/noticias/opinion/columnas/2020/10/29/la-derrota-del-gueto/](https://www.elmostrador.cl/noticias/opinion/columnas/2020/10/29/la-derrota-del-gueto/)
+
+
+![](files/dep_chile.jpeg){width="600" height="700" fig-align="center"}
+
+![](files/map.png){width="700" height="700" fig-align="center"}
+
+Fuente: [Rossetti, T., Lobel, H., Rocco, V., & Hurtubia, R. (2019). Explaining subjective perceptions of public spaces as a function of the built environment: A massive data approach. Landscape and urban planning, 181, 169-178.](https://www.ing.uc.cl/publicaciones/explaining-subjective-perceptions-of-public-spaces-as-a-function-of-the-built-environment-a-massive-data-approach/)
+
+### Sobre los datos espaciales
+
+Los datos espaciales son fundamentales en la investigación académica y la toma de decisiones en políticas públicas debido a su capacidad para proporcionar información geolocalizada. Esto nos permite obtener patrones y dinámicas en áreas clave como la salud, educación, transporte, migración, desarrollo urbano y medio ambiente.
+
+Estos datos nos permiten **planificar y evaluar** programas de desarrollo territorial, **optimizar** la distribución de recursos, y diseñar estrategias de mitigación de riesgos socionaturales. Además, permiten anticipar escenarios futuros, mejorar la resiliencia de comunidades ante desastres, y garantizar un crecimiento sostenible y equitativo en diversas áreas geográficas.
+
+**Perspectiva clásica**: El espacio es sólo un contenedor, discretizando la información en distintos niveles de agregación: predios, manzana, comunas, ciudades, regiones, etc.
+
+**Reformulación**: Considera a la localización del objeto y a las variables espaciales. Contempla un marco conceptual similar al anterior, incluyendo variables intrínsecamente espaciales.
+
+  - Distancias a lugares o entre objetos: polos o nodos, entradas y salidas de autopistas, cuerpos naturales (análisis de redes, entre otros)
+
+  - Variables que permiten caracterizar la organización del espacio (forma, densidad, entre otras) y grado de heterogeneidad espacial (patrones de distribución, entre otros). 
+
+De aquí se derivan algunas herramientas importantes para el análisis de datos geoestadísticos, pero que son parte de la estadística espacial. 
+
+### Fuentes de datos espaciales
+
+Hay diversas fuentes de acceso a datos espaciales:
+
+- Geoportal de Chile (>6000 datos territoriales): [https://www.geoportal.cl/catalog](https://www.geoportal.cl/catalog)
+- Mapas vectoriales de la biblioteca del congreso nacional: [https://www.bcn.cl/siit/mapoteca/comunas](https://www.bcn.cl/siit/mapoteca/comunas)
+- GeoDatos del INE: [https://www.ine.gob.cl/herramientas/portal-de-mapas/geodatos-abiertos](https://www.ine.gob.cl/herramientas/portal-de-mapas/geodatos-abiertos)
+
+Para sudamerica: 
+
+- GeoPortal CEPAL: [https://geo.cepal.org/ide_americas/?lang=en](https://geo.cepal.org/ide_americas/?lang=en)
+- ISRIC: [https://www.isric.org/soil-geographic-databases-south-america](https://www.isric.org/soil-geographic-databases-south-america)
+
+
+### Analizar datos espaciales
+
+**Primera ley de geografía**
+
+Cantidades cercanas (vecinas) tienden a ser más similares que aquellas que están más distantes.
+
+En el análisis tradicional de datos, se asume que las observaciones de una muestra **son independientes entre sí** $i.i.d.$. Sin embargo, el enfoque principal de la Estadística Espacial es abandonar esta suposición de independencia y, en su lugar, modelar la **dependencia subyacente** en función de la separación espacial de los datos de la muestra.
+
+Es importante señalar que ignorar la dependencia espacial en muestras que la presentan puede llevar a interpretaciones erróneas y, en algunos casos, graves. Esto se debe a que incluso propiedades estadísticamente robustas, como la consistencia del promedio como estimador de la media, pueden verse afectadas. Además, existe el riesgo de cometer errores en pruebas de hipótesis, como rechazar una prueba que no debería ser rechazada.
+
+## El problema de la no independencia
+
+Sea $Y_1, \dots, Y_n \sim \mathcal{N}(\mu, \sigma^2)$ con $\sigma^2$ conocido y $\hat{\mu} = \bar{Y}_n$ el estimador de $\mu$, tal que:
+
+1. Si $\text{cov}(Y_i, Y_j) = 0$, $\forall i \neq j$, entonces (independencia):
+
+- $\mathbb{E}[\bar{Y}_n] = \mu$
+- $\text{Var}[\bar{Y}_n] = \frac{\sigma^2}{n}$
+
+2. Si $\text{cov}(Y_i, Y_j) = \rho \frac{\sigma^2}{n} , \forall i \neq j$, entonces (estructura de dependencia que se debe incorporar al modelo):
+
+- $\mathbb{E}[\bar{Y}_n] = \mu , (\text{sigue siendo el mismo})$
+- $\text{Var}[\bar{Y}n] = \frac{1}{n^2} \left[\sum{i=1}^n \text{Var}(Y_i) + 2 \sum_{i<j} \text{cov}(Y_i, Y_j)\right]$
+- $\text{Var}[\bar{Y}_n] = \frac{\sigma^2}{n} \left[1 + (n - 1)\rho\right] \quad (\text{agregamos estructura } \text{AR}(1))$
+
+**Consecuencias**:
+
+1. Tanto bajo dependencia como independencia, el estimador de la media es insesgado.
+
+2. Si $\rho > 0$, entonces $\text{Var}(\bar{Y}_n) > \frac{\sigma^2}{n}$. Por lo tanto, se comete un error en la estimación de la varianza (se subestima).
+
+3. Si $\rho > 0$, entonces $\lim_{n \to \infty} \text{ECM}(\bar{Y}_n) = \rho \sigma^2 \neq 0$.
+
+- $\therefore \bar{Y}_n$ pierde la consistencia en media cuadrática.
+
+Adicionalmente, considere el test:
+
+- $H_0 : \mu = \mu_0$
+
+Ignorando la correlación:
+
+- $Z_{\text{obs}} = \frac{\sqrt{n} (\bar{Y}_n - \mu_0)}{\sigma}$
+
+Considerando la correlación:
+
+- $Z_{\text{obs}} = \frac{\sqrt{n} (\bar{Y}_n - \mu_0)}{\sigma \sqrt{1 + (n - 1)\rho}} \quad (\text{Incorpora la estructura de correlación})$
+
+Observación: $Z_{\text{obs}}$ tiene un mayor error tipo II, por lo tanto, rechaza $H_0$ más a menudo de lo que debería.
+
+## Tipos de datos espaciales
+
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+#| results: 'hide'
+
+# Limpiamos el enviroment y desactivamos la notación científica 
+rm(list = ls())
+options(scipen = 999)
+
+# Cargamos las librerías que utilizaremos en el análisis
+settings_packages <- function(packages){
+  # Cargamos las tablas de datos
+  for (i in packages) {
+    if (i %in% rownames(installed.packages())) {
+      library(i, character.only=TRUE)
+    } else {
+      install.packages(i)
+      library(i, character.only = TRUE)
+    }
+  }
+}
+
+settings_packages(
+  packages=c("rio", "dplyr", "ggplot2", "tidyr",
+             "geoR", "sf", "viridis", 
+             "chilemapas", "cholera", 
+             "spdep", "gstat", "spatialreg")
+)
+```
+
+### Datos geoestadísticos
+
+Estos datos se refieren a un dominio espacial continuo y fijo. Esto significa que podemos observar el atributo (como la temperatura o la concentración de contaminantes) en cualquier punto del espacio dentro de un área específica.
+
+El dominio es continuo, pero no necesariamente el atributo que se mide, el cual podría ser tanto continuo como discreto. Un ejemplo sería la medición de la calidad del aire en diferentes puntos de una ciudad.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+library(geoR)
+ggplot(data.frame(cbind(parana$coords, Rainfall = parana$data)))+
+  geom_point(aes(east, north, color = Rainfall), size = 2) +
+  coord_fixed(ratio = 1) +
+  scale_color_gradient(low = "blue", high = "orange") +
+  geom_path(data = data.frame(parana$border), aes(east, north)) +
+  theme_bw()
+```
+
+### Datos sobre grillas/áreas
+
+Datos con un dominio fijo pero numerable o discreto. Esto significa que los datos se recopilan en una cantidad finita o contable de ubicaciones espaciales, que usualmente representan áreas en lugar de puntos exactos. 
+
+Estas áreas pueden corresponder a zonas censales o píxeles en imágenes satelitales. Un ejemplo típico serían los datos censales agrupados por regiones o zonas postales.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+
+library(chilemapas)
+library(dplyr)
+library(ggplot2)
+
+poblacion_adulto_mayor_comunas <- censo_2017_comunas %>% 
+  filter(as.integer(edad) >= 14) %>% 
+  group_by(codigo_comuna) %>% 
+  summarise(pob_adulto_mayor = sum(poblacion))
+
+rm <- mapa_comunas %>% 
+  filter(codigo_region == 13) %>% 
+  left_join(
+    codigos_territoriales %>% 
+      select(matches("comuna"))
+  ) %>% 
+  left_join(poblacion_adulto_mayor_comunas)
+
+# estos colores vienen del paquete colRoz
+# https://github.com/jacintak/colRoz
+paleta <- c("#DCA761", "#CFB567", "#BFBC71", "#9EA887", "#819897")
+
+ggplot(rm) + 
+  geom_sf(aes(fill = pob_adulto_mayor, geometry = geometry)) +
+  #geom_sf_label(aes(label = nombre_comuna, geometry = geometry)) +
+  scale_fill_gradientn(colours = rev(paleta), name = "Poblacion\nadulto mayor") +
+  labs(title = "Poblacion de 65 años o más") +
+  theme_void(base_size = 13)
+```
+
+### Patrones de punto 
+
+En este caso, el dominio espacial es aleatorio, es decir, cambia con cada realización o evento. Estos datos se utilizan para analizar la distribución espacial de eventos discretos, como terremotos o pozos petroleros. Es importante en este tipo de análisis identificar si existen tendencias espaciales en la densidad de puntos. 
+
+Un ejemplo clásico serían los epicentros de terremotos o la ubicación de eventos de crímenes en una ciudad.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+
+library(cholera)
+rng <- mapRange()
+plot(fatalities[, c("x", "y")],
+  pch = 15, col = "black",
+  cex = 0.5, xlim = rng$x, ylim = rng$y, asp = 1,
+  frame.plot = FALSE, axes = FALSE, xlab = "", ylab = ""
+)
+addRoads()
+```
+
+
+## Archivos de formas
+
+### Sistema de referencia de coordenadas
+
+¿Qué es un SRC?
+
+Un sistema que define el origen y la unidad de medida de las coordenadas. Permite transformar datos a un SRC común cuando trabajamos con múltiples conjuntos de datos. 
+
+Tipos de SRC:
+
+- **Geográficos (no proyectados)**: Utilizan latitud y longitud para referenciar ubicaciones en una superficie tridimensional (elipsoide). Ejemplo: Coordenadas GPS.
+
+- **Proyectados**: Usan coordenadas cartesianas (este y norte) para referenciar en un plano bidimensional. Ejemplo: Proyección UTM (Universal Transversal de Mercator), que divide la Tierra en zonas de 6 grados de longitud.
+
+### Shape Files 
+
+tos geográficos se pueden representar mediante un formato de almacenamiento de datos denominado shapefile, que almacena la ubicación, la forma y los atributos de elementos geográficos como puntos, líneas y polígonos. Un shapefile no es un archivo único, sino que consta de una colección de archivos relacionados que tienen diferentes extensiones y un nombre común y se almacenan en el mismo directorio. 
+
+- `.shp`: contiene los datos de geometría,
+- `.shx`: es un índice posicional de los datos de geometría que permite buscar hacia adelante y hacia atrás en el .shparchivo,
+- `.dbf`: almacena los atributos de cada forma.
+
+Otros archivos que pueden formar un shapefile son los siguientes:
+
+- `.prj`: archivo de texto simple que describe la proyección,
+- `.sbny.sbx`: índice espacial de los datos geométricos,
+- `.shp.xml`: metadatos geoespaciales en formato XML.
+
+Por lo tanto, cuando se trabaja con shapefiles, no es suficiente obtener el .shparchivo que contiene los datos de geometría, también se requieren todos los demás archivos de soporte.
+
+*Nota*: Dado el peso de los .shp tendrás que descargar los archivos y luego agregarlos a tu ruta de trabajo: [https://www.dropbox.com/scl/fo/cvhali267ohjdhoy69fa0/AIK3odN9gr_-BNal1NE7DNw?rlkey=97ewtpm2g0f1irl3wahrxnaom&st=82fdvsoq&dl=0](https://www.dropbox.com/scl/fo/cvhali267ohjdhoy69fa0/AIK3odN9gr_-BNal1NE7DNw?rlkey=97ewtpm2g0f1irl3wahrxnaom&st=82fdvsoq&dl=0)
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+micro_C17 <- st_read('Datos/microdatos-censo17/Microdatos_Manzana.shp')
+glimpse(micro_C17)
+```
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+micro_C17 <- micro_C17 %>% filter(PROVINCIA == "SANTIAGO")
+micro_C17$COMUNA <- chartr('ÁÉÍÓÚ', 'AEIOU', micro_C17$COMUNA)
+colnames(micro_C17)
+```
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+#| fig-width: 15
+#| fig-height: 15
+
+ggplot(data = micro_C17) +
+    geom_sf() + 
+    theme_void() + 
+    labs(title="Mapa de la Provincia de Santiago")
+```
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+
+summary(as.numeric(micro_C17$PERSONAS_E))
+
+micro_C17 <- micro_C17 %>% 
+  mutate(personas_migrantes = as.numeric(micro_C17$PERSONAS_E)) %>%  
+  mutate(grupos= case_when(
+    personas_migrantes>= 0 & personas_migrantes<= 20 ~ "10-20", 
+    personas_migrantes> 20 ~ ">20", 
+    TRUE ~ NA),
+    grupos=factor(grupos, levels=c("10-20", ">20")))
+
+table(micro_C17$grupos)
+```
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+#| fig-width: 15
+#| fig-height: 15
+ggplot(data = micro_C17) +  
+  geom_sf(aes(fill = factor(grupos)),
+          linewidth = 0.05) + # Total personas migrantes 
+  theme_void() +
+  theme(legend.position="top",
+        legend.title = element_blank())  + 
+  labs(title="Mapa con la población migrante en la Provincia de Santiago")
+```
+
+
+## Análisis Descriptivo
+
+![](files/des.png){width="500" height="300" fig-align="center"}
+
+- Los indicadores descriptivos espaciales permiten analizar cómo los datos están distribuidos en el espacio y cómo las ubicaciones influyen en los patrones observados.
+
+- Estos indicadores ayudan a identificar patrones de **autocorrelación espacial**, **clústeres** y **tendencias** en los datos geográficos.
+
+   
+*Nota*: Dado el peso de los .shp tendrás que descargar los archivos y luego agregarlos a tu ruta de trabajo: [https://www.dropbox.com/scl/fo/e4995d1rw559wimu863t6/AMrhJS7c40pNqEjZ5cg0jH8?rlkey=xkap6nhvd2t1cpuf5zrpnkd1o&st=dl43nojx&dl=0](https://www.dropbox.com/scl/fo/e4995d1rw559wimu863t6/AMrhJS7c40pNqEjZ5cg0jH8?rlkey=xkap6nhvd2t1cpuf5zrpnkd1o&st=dl43nojx&dl=0)
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+
+comunas <- st_read('Datos/comunas_chile/COMUNAS_2020.shp')
+glimpse(comunas)
+
+covid <- rio::import('Datos/caracteristicas-2020/COVID-19_2020.xlsx', skip = 2)
+
+colnames(covid)<-c('codigo','poblacion','comuna','n_marzo','t_marzo','n_abril','t_abril',
+                   'n_mayo','t_mayo','n_junio','t_junio', 'n_julio','t_julio', 
+                   'n_acum','n_acum2','tasa_acum')
+glimpse(covid)
+
+pobreza <- rio::import('Datos/caracteristicas-2020/Tasa_de_Pobreza_por_Ingresos_por_Comunas_2020.xlsx', skip = 2) 
+
+colnames(pobreza) <-c('codigo','region','nombre_comuna','proyeccion_personas',
+                      'personas_pobreza','porcentaje_pobreza', 'lim_inf','lim_sup',
+                      'casen','sae')
+glimpse(pobreza)
+
+desocupacion <- rio::import('Datos/caracteristicas-2020/tasa de desocupacion_2020.xlsx', skip = 1) 
+colnames(desocupacion) <- c('codigo','comuna','td_marzo','td_abril','td_mayo',
+                            'td_junio','td_julio')
+
+glimpse(desocupacion)
+```
+
+
+
+### Indice Global de Moran (I de Moran)
+
+**Índice Global de Moran (I de Moran)**:
+
+   - Mide el **grado de autocorrelación espacial global** de una variable, es decir, si los valores altos están agrupados cerca de otros valores altos o si los valores bajos están agrupados con otros bajos.
+   - Un valor de **I de Moran** cercano a 1 indica un **agrupamiento espacial**, mientras que un valor cercano a -1 sugiere **dispersión**.
+   - **Aplicación**: Identificación de patrones de concentración o dispersión en variables socioeconómicas o ambientales.
+   $$I = \frac{n \sum_{i} \sum_{j} w_{ij} (x_i - \bar{x})(x_j - \bar{x})}{W \sum_{i}(x_i - \bar{x})^2}$$
+   Donde:
+   - $w_{ij}$: pesos espaciales entre las observaciones $i$ y $j$.
+   - $x_i$: valor de la variable en la ubicación $i$.
+   - $\bar{x}$: media de la variable.
+   - $W$: suma de los pesos espaciales.
+   
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+comunas_covid <- merge(comunas, covid, by.x="CUT_COM", by.y="codigo", all.x=TRUE)
+comunas_covid <- comunas_covid %>% drop_na(tasa_acum)
+glimpse(comunas_covid)
+```
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+#| fig-width: 15
+#| fig-height: 15
+
+paleta <- c("#DCA761", "#CFB567", "#BFBC71", "#9EA887", "#819897")
+
+comunas_covid %>% 
+  filter(PROVINCIA=="Santiago") %>% 
+  ggplot() +  
+  geom_sf(aes(fill = tasa_acum, , geometry = geometry),
+          linewidth = 0.05) + # Total personas migrantes 
+  scale_fill_gradientn(colours = rev(paleta), name = "Tasa acumulada") +
+  geom_sf_label(aes(label = COMUNA, geometry = geometry)) +
+  theme_void() +
+  theme(legend.position="right",
+        legend.title = element_blank()) 
+
+```
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+length(unique(covid$codigo))
+# Coordenadas
+coords <- st_centroid(comunas_covid) %>% st_coordinates()
+coords
+
+# El vecindario basado en las coordenadas de los polígonos
+nb <- knearneigh(coords, k = 4) %>% knn2nb()
+nb
+
+# Cacular los pesos espaciales 
+listw <- nb2listw(nb, style="W")
+listw
+```
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+# Índice de Moran
+# 1. Grado de autocorrelación
+# Valores -1 (No haga nada espacial), 1(haga algo espacial)
+im <- moran.test(comunas_covid$tasa_acum, listw)
+im 
+```
+
+
+### Estadístico Local de Moran (LISA)
+
+   - Analiza la **autocorrelación espacial local**, permitiendo identificar **clústeres locales** de valores altos o bajos y detectar **outliers espaciales**.
+   - **Aplicación**: Detección de áreas con valores anómalos o agrupaciones locales significativas, como en estudios de crimen o salud pública.
+   $$I_i = z_i \sum_{j} w_{ij} z_j$$
+
+   Donde:
+   - $I_i$: estadístico LISA para la observación $i$.
+   - $z_i$: valor estandarizado de la variable para la observación $i$.
+   - $w_{ij}$: pesos espaciales entre las observaciones $i$ y $j$.
+
+### Variograma
+
+- Mide cómo la **variabilidad** de una variable aumenta a medida que aumenta la distancia entre los puntos.
+
+- **Aplicación**: Identificación de la estructura de correlación espacial y la distancia a la que se disipa la autocorrelación.
+   $$\gamma(h) = \frac{1}{2N(h)} \sum_{i,j \in h} (z_i - z_j)^2$$
+
+   Donde:
+   - $\gamma(h)$: valor del variograma para la distancia $h$.
+   - $z_i$: valor de la variable en el punto $i$.
+   - $N(h)$: número de pares de puntos separados por la distancia $h$.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+
+## Variograma 
+# Si las observaciones más cercanas son más homogéneas y las obs más lejanas son heterogéneas 
+# Convertir el objeto sf a un objeto de coordenadas para usar en gstat
+coords <- st_coordinates(comunas_covid)
+library(gstat)
+spatial_data <- as(comunas_covid, "Spatial")
+glimpse(spatial_data)
+```
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+vario <- variogram(tasa_acum ~ 1, spatial_data)
+vario
+```
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+#| fig-width: 10
+#| fig-height: 10
+
+ggplot(as.data.frame(vario), aes(x = dist, y = gamma)) +
+  geom_point(color="blue", size=3) +
+  geom_hline(yintercept=1, color="red") + 
+  geom_line() +
+  labs(title = "Variograma", x = "Distancia", y = "Semivarianza") +
+  theme_bw()
+```
+
+
+## Modelos para datos espaciales 
+
+Las regresiones clásicas expresa estadísticamente la relación en una  variable dependiente y una o un conjunto de variables explicativas en una proporción lineal. 
+$$Y_i=\beta_0 + \beta_1X_i+\epsilon$$
+Con $E(\epsilon)=0$
+
+Sin embargo, si hay un efecto espacial en los datos, se debe utilizar un modelo espacial. Esto se debe a que las variables independientes que influyen en la variable dependiente pueden ser diferentes en cada ubicación.
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+library(spatialreg)
+```
+
+
+### Modelo CAR
+
+**Conditional Autoregressive Model**
+
+Intuición:
+
+- Los valores de una región están influenciados por sus vecinas.
+
+- El modelo considera la dependencia condicional entre las regiones: el valor en una región depende de los valores de las regiones adyacentes.
+
+- Este modelo es muy útil cuando tienes datos agrupados en áreas, como municipios o distritos, y existe interacción entre ellos.
+
+**Conditional Autoregressive Model**
+
+Sea $Y_i$ el valor en la región $i$, con la dependencia dada por:
+
+$Y_i | Y_j, j \neq i \sim N\left(\sum_j b_{ij} Y_j, \tau_i^2 \right)$
+
+- $b_{ij}$: define cuánto influye la región $j$ sobre la región $i$.
+- $\tau_i^2$: varianza del ruido aleatorio.
+
+Usando el lema de Brook, podemos escribir la probabilidad conjunta como:
+
+$p(y_1, \dots, y_n) \propto \exp \left( -\frac{1}{2} y^T D^{-1}(I - B)y \right)$
+
+- $B = (b_{ij})$: matriz de dependencia espacial.
+- $D = \text{diag}(\tau_1^2, \dots, \tau_n^2)$: matriz diagonal de varianzas.
+
+El modelo condicional autorregresivo (CAR por sus siglas en inglés) es una técnica utilizada para modelar datos espaciales que tienen dependencia espacial entre las observaciones. Este modelo se basa en la idea de que **el valor de una variable en una ubicación específica está condicionado por los valores en las ubicaciones vecinas**.
+
+Este modelo es adecuado cuando hay interacción entre áreas contiguas, como municipios o distritos. Antes de aplicar el modelo CAR, es esencial asegurarse de que existe una dependencia espacial entre las áreas. Para esto, se puede utilizar el índice de Moran, que mide la autocorrelación espacial en los datos. 
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+lm_model <- lm(tasa_acum ~ SUPERFICIE + poblacion, data=comunas_covid)
+summary(lm_model)
+car_model <- spautolm(tasa_acum ~ SUPERFICIE + poblacion, data=comunas_covid, listw=listw, family="CAR")
+summary(car_model)
+```
+
+
+### Modelo SAR
+
+**Simultaneous Autoregressive Model**
+
+Intuición:
+
+- Similar al CAR, pero en lugar de modelar las dependencias condicionales, el modelo SAR describe las **relaciones simultáneas** entre las regiones.
+
+- Cada región se ve influenciada directamente por sus vecinas, pero se modelan todas las regiones simultáneamente.
+
+
+**Simultaneous Autoregressive Model**
+
+El modelo básico se expresa como:
+
+$Y_i = \sum_j b_{ij} Y_j + \epsilon_i$
+
+- $\epsilon_i \sim N(0, \sigma_i^2)$: error aleatorio con varianza $\sigma_i^2$.
+
+**Forma matricial**:
+Podemos reescribir el modelo en forma matricial como:
+
+$Y = B Y + \epsilon$
+
+- $B$: matriz de contiguidad que describe la dependencia entre las regiones.
+
+**Simultaneous Autoregressive Model**
+
+Distribución conjunta: 
+
+Si $(I - B)$ es invertible, entonces la distribución conjunta de $Y$ es:
+
+$Y \sim N(0, (I - B)^{-1} D (I - B)^T)$
+
+- $D$: matriz diagonal de varianzas.
+
+El modelo autorregresivo espacial (SAR por sus siglas en inglés) es un método espacial que se puede utilizar para **describir la relación entre la variable dependiente y las variables independientes considerando el impacto espacial**. 
+
+Antes de llevar a cabo el modelo se debe probar el efecto espacial utilizando el índice de Moran. Esto se utiliza para asegurar que hay efectos espaciales en los datos. Sino hay dependencia espacial use OLS. 
+
+![](files/sar.png){width="500" height="400" fig-align="center"}
+
+![](files/sar2.png){width="500" height="400" fig-align="center"}
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+sar_model <- lagsarlm(tasa_acum ~ SUPERFICIE + poblacion, data=comunas_covid, listw=listw)
+summary(sar_model)
+```
+
+
+### Comparemos 
+
+- **CAR**: Modela las relaciones condicionales entre áreas. Las dependencias son explícitas en las ecuaciones condicionales.
+
+- **SAR**: Modela las relaciones simultáneas. Se centra en la estructura de dependencia global, usando la matriz de contiguidad para describir interacciones entre todas las regiones.
+
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: true
+# Models
+summary(lm_model)
+summary(car_model)
+summary(sar_model)
+#AIC
+AIC(lm_model)
+AIC(car_model)
+AIC(sar_model)
+```
+
+
+### Modelos avanzados
+
+#### INLA
+
+El método **INLA (Integrated Nested Laplace Approximation)** es una técnica avanzada para realizar **inferencia bayesiana** en modelos latentes Gaussianos. Este enfoque se usa en modelos como:
+
+- Modelos lineales generalizados mixtos.
+
+- Modelos espaciales y espacio-temporales.
+
+INLA es muy eficiente y permite obtener aproximaciones rápidas de las distribuciones posteriores de los parámetros y los hiperparámetros del modelo, lo que lo hace adecuado para problemas de alta dimensión.
+
+El modelo tiene la siguiente forma:
+
+1. **Datos observados** $y_i$ condicionados a los parámetros latentes $x$ y a los hiperparámetros $\theta$:
+
+   $$ y_i | x_i, \theta \sim \pi(y_i | x_i, \theta), \quad i = 1, \dots, n $$
+
+2. **Campo Gaussiano latente** $x$ condicionado a los hiperparámetros $\theta$:
+
+   $$ x | \theta \sim N(\mu(\theta), Q(\theta)^{-1}) $$
+
+3. **Distribución de los hiperparámetros**:
+
+   $$ \theta \sim \pi(\theta) $$
+
+Aquí:
+- $y$: datos observados.
+- $x$: campo Gaussiano latente.
+- $\theta$: hiperparámetros.
+- $\mu(\theta)$: media del campo latente.
+- $Q(\theta)$: matriz de precisión (la inversa de la matriz de covarianza).
+
+Para realizar la **inferencia bayesiana**, INLA utiliza una combinación de **aproximaciones analíticas** e **integración numérica**:
+
+- **Posterior del campo latente** $x_i$:
+   $$\pi(x_i | y) = \int \pi(x_i | \theta, y) \pi(\theta | y) d\theta$$
+   
+- **Posterior de los hiperparámetros** $\theta$:
+   $$\pi(\theta_j | y) = \int \pi(\theta | y) d\theta_{j}$$
+Donde:
+- $\pi(x_i | \theta, y)$: es la distribución posterior condicional de los parámetros latentes.
+- $\pi(\theta | y)$: es la posterior de los hiperparámetros.
+
+La aproximación de INLA se basa en:
+
+1. **Aproximación de Laplace** para el campo latente $x$.
+2. **Integración numérica** para obtener las marginales de $\theta$.
+
+Finalmente, INLA combina estas aproximaciones para realizar inferencias rápidas y precisas:
+
+1. La posterior de $x_i$:
+
+   $$ \tilde{\pi}(x_i | y) = \int \tilde{\pi}(x_i | \theta, y) \tilde{\pi}(\theta | y) d\theta $$
+
+2. La posterior de los hiperparámetros $\theta_j$:
+
+   $$ \tilde{\pi}(\theta_j | y) = \sum_j \tilde{\pi}(\theta_j | y) \times \Delta_j $$
+
+Donde $\tilde{\pi}$ indica las aproximaciones anidadas calculadas por INLA.
+
+Con este enfoque, INLA puede manejar de forma eficiente modelos espaciales y espacio-temporales, permitiendo la **inferencia bayesiana** en alta dimensión sin el uso intensivo de simulaciones.
+
+
+#### Contextos de uso
+
+1. **Epidemiología espacial**:
+   - INLA se utiliza para modelar la propagación de enfermedades en distintas regiones geográficas.
+   - Permite ajustar modelos que capturan tanto la dependencia espacial entre áreas como los efectos temporales.
+   - Ejemplo: Modelar la incidencia del dengue o la malaria en diferentes zonas geográficas, teniendo en cuenta los factores ambientales y las interacciones espaciales.
+
+2. **Modelos de redes**:
+   - INLA puede utilizarse para inferir modelos de dependencia espacial entre nodos de una red.
+   - Ejemplo: Análisis de redes sociales geográficas donde la localización espacial de los nodos (personas) influye en sus interacciones.
+
+3. **Salud pública**:
+   - INLA es ideal para analizar disparidades geográficas en la incidencia de enfermedades o en el acceso a servicios de salud.
+   - Ejemplo: Modelar la variabilidad espacial en el acceso a servicios de salud entre diferentes barrios de una ciudad.
+
+
+## Regionalización 
+
+#### ¿Qué es la clusterización?
+
+- La **clusterización** es un método de **aprendizaje no supervisado** que agrupa datos en función de su similitud.
+
+- Es útil en muchos campos, como el análisis de datos espaciales, la segmentación de clientes, la biología y la detección de patrones en grandes conjuntos de datos.
+
+- El objetivo es que los elementos dentro de un clúster sean lo más similares entre sí, mientras que los elementos de diferentes clústeres sean lo más diferentes posibles.
+
+**¿Para qué sirve?**
+- Identificar **patrones ocultos** en los datos.
+
+- Agrupar áreas geográficas en zonas homogéneas (regionalización).
+
+- Segmentar poblaciones para análisis de políticas públicas.
+
+- Reducir la complejidad en análisis de grandes conjuntos de datos.
+
+##### Algoritmos de regionalización 
+
+1. **Max-P**:
+   - Es un algoritmo de **partición espacial** que agrupa áreas geográficas según una **restricción de piso de población**.
+   - Utiliza métodos heurísticos como **búsqueda tabú** y **greedy** para evitar caer en óptimos locales.
+   - Permite crear zonas con pesos poblacionales equilibrados.
+   - **Aplicación**: Definir regiones en censos o estudios demográficos donde se necesita un balance poblacional.
+
+2. **Grouping Analysis (GA)**:
+   - Un algoritmo de **clusterización multivariable** que utiliza el método de **K-Means** y puede incluir o no **constricciones espaciales**.
+   - Utiliza una matriz de pesos espaciales y una componente heurística para definir los clústeres.
+   - **Aplicación**: Segmentación espacial para análisis urbano o políticas públicas basadas en múltiples variables (como ingresos y nivel educativo).
+
+3. **REDCAP**:
+   - Un algoritmo de **partición jerárquica** que combina seis aproximaciones de aglomeración de clústeres.
+   - Tiene una componente heurística para optimización local.
+   - **Aplicación**: Definir jerarquías regionales, como distritos o barrios, dentro de una ciudad para estudios socioeconómicos.
+
+4. **Algoritmo de Zonificación Escala-Espacio**:
+   - Este algoritmo busca la **escala más adecuada** para la zonificación en función de la **autocorrelación espacial**.
+   - Minimiza la varianza local y permite recalcular los vecinos en cada escala.
+   - **Aplicación**: Definir zonas geográficas homogéneas en términos de características censales o socioeconómicas, con recalibración en múltiples escalas.
+   
+##### Contextos de uso 
+
+- **Planificación urbana**: Agrupar manzanas o barrios en zonas homogéneas para mejorar la distribución de servicios públicos.
+
+- **Estudios censales**: Crear zonas homogéneas a partir de datos censales, mejorando la representatividad y precisión en los análisis.
+
+- **Salud pública**: Identificar regiones con características similares para focalizar recursos y políticas de salud.
+
+## Algunas referencias para continuar
+
+Banerjee S., Carlin B., and Gelfand A. (2015) Hierarchical Modeling and Analysis for Spatial Data, Boca Raton: Chapman Hall/CRC.
+
+Cressie, N. (1993) Statistics for Spatial Data. New York: Wiley.
+
+ESRI (2018). *Grouping Analysis Tool Documentation*. Environmental Systems Research Institute.
+
+Guo, D. (2008). *Regionalization with dynamically constrained agglomerative clustering and partitioning (REDCAP)*. International Journal of Geographical Information Science, 22(7), 801-823.
+
+Lovelace, R., Nowosad, J., & Muenchow, J. (2019). Geocomputation with R. Chapman and Hall/CRC.
+
+Moraga, P. (2019). Geospatial health data: Modeling and visualization with R-INLA and shiny. Chapman and Hall/CRC.
+
+Mu, L., & Wang, F. (2008). *A scale-space clustering method: Application to urban regionalization*. Geographical Analysis, 40(3), 208-234.
+
+
+
